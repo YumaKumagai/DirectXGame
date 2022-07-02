@@ -1,8 +1,8 @@
 ﻿#pragma once
 
 #include "Material.h"
-#include "Vector2.h"
-#include "Vector3.h"
+#include "Coord2.h"
+#include "Coord3.h"
 #include <Windows.h>
 #include <d3d12.h>
 #include <d3dx12.h>

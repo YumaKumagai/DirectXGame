@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "Vector3.h"
+#include "Coord3.h"
 #include "MathUtility.h"
 
 /// <summary>

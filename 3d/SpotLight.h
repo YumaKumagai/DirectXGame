@@ -1,7 +1,7 @@
 ﻿#pragma once
 
-#include "Vector2.h"
-#include "Vector3.h"
+#include "Coord2.h"
+#include "Coord3.h"
 #include "MathUtility.h"
 
 /// <summary>
