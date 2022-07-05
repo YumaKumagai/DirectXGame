@@ -1,2 +1,5 @@
-﻿  main.cpp
+﻿  DirectXCommon.cpp
+  WinApp.cpp
+  main.cpp
+  GameScene.cpp
   DirectXGame.vcxproj -> C:\Users\yuma_\source\repos\KamataEngine\DirectXGame\x64\Debug\DirectXGame.exe
