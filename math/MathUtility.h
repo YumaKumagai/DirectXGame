@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "Coord3.h"
+#include "MyTools/Coord3.h"
 #include "Matrix4.h"
 
 namespace MathUtility {

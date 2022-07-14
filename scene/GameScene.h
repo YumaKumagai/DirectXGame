@@ -10,6 +10,7 @@
 #include "ViewProjection.h"
 #include "WorldTransform.h"
 #include "DebugCamera.h"
+#include "Player.h"
 
 /// <summary>
 /// ゲームシーン
@@ -52,15 +53,15 @@ private: // メンバ変数
 	/// ゲームシーン用
 	/// </summary>
 
-	// デバッグカメラ
-	DebugCamera* debugCamera_ = nullptr;
-
-	// テクスチャハンドル
-	uint32_t textureHandle_ = 0;
-	// 3Dモデル
-	Model* model_ = nullptr;
-	// ワールドトランスフォーム
-	WorldTransform worldTransform_;
 	// ビュープロジェクション
 	ViewProjection viewProjection_;
+
+	// デバッグカメラ
+	DebugCamera* debugCamera_ = nullptr;
+	// デバッグカメラ有効
+	bool isDebugCameraActive_ = false;
+
+	// 自キャラ
+	Player* player_ = nullptr;
+
 };

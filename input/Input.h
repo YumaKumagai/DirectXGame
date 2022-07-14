@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "Coord2.h"
+#include "MyTools/Coord2.h"
 #include <Windows.h>
 #include <array>
 #include <vector>

@@ -59,9 +59,10 @@ class DebugText {
 	/// </summary>
 	/// <param name="x"></param>
 	/// <param name="y"></param>
-	void SetPos(float x, float y) {
+	DebugText* SetPos(float x, float y) {
 		posX_ = x;
 		posY_ = y;
+		return this;
 	}
 
 	/// <summary>

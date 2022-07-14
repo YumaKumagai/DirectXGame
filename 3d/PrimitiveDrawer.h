@@ -1,6 +1,6 @@
 ﻿#pragma once
-#include "Coord3.h"
-#include "Coord4.h"
+#include "MyTools/Coord3.h"
+#include "MyTools/Coord4.h"
 #include "ViewProjection.h"
 #include <array>
 #include <cstdint>

@@ -7,7 +7,10 @@ GameScene::GameScene() {}
 
 GameScene::~GameScene() {
 	delete debugCamera_;
-	delete model_;
+
+	// 自キャラの開放
+	delete player_;
+
 }
 
 void GameScene::Initialize() {
@@ -17,27 +20,59 @@ void GameScene::Initialize() {
 	audio_ = Audio::GetInstance();
 	debugText_ = DebugText::GetInstance();
 
+	// ビュープロジェクションの初期化
+	viewProjection_.Initialize();
+
 	// デバッグカメラの生成
 	debugCamera_ = new DebugCamera(WinApp::kWindowWidth, WinApp::kWindowHeight);
 	// 軸方向表示の表示を有効にする
-	AxisIndicator::GetInstance()->SetVisible(true);
+	AxisIndicator::GetInstance()->SetVisible(isDebugCameraActive_);
 	// 軸方向表示が参照するビュープロジェクションを指定する（アドレス渡し）
 	AxisIndicator::GetInstance()->SetTargetViewProjection(&debugCamera_->GetViewProjection());
 
-	// ファイル名を指定してテクスチャを読み込む
-	textureHandle_ = TextureManager::Load("mario.jpg");
-	// 3Dモデルの生成
-	model_ = Model::Create();
-	// ワールドトランスフォームの初期化
-	worldTransform_.Initialize();
-	// ビュープロジェクションの初期化
-	viewProjection_.Initialize();
+	// 自キャラの生成
+	player_ = new Player();
+	// 自キャラの初期化
+	player_->Initialize(Model::Create(), TextureManager::Load("mario.jpg"));
+
 }
 
 void GameScene::Update() {
 
-	// デバッグカメラの更新
-	debugCamera_->Update();
+#ifdef _DEBUG
+#pragma region デバッグカメラ・軸表示の切り替えとそれに伴うビュープロジェクションの更新
+	// デバッグカメラ・軸方向表示の有効フラグをトグル
+	if (input_->TriggerKey(DIK_LSHIFT))
+	{
+		isDebugCameraActive_ = !isDebugCameraActive_;
+		AxisIndicator::GetInstance()->SetVisible(isDebugCameraActive_);
+	}
+	//カメラの処理
+	if (isDebugCameraActive_)
+	{
+		// デバッグカメラの更新
+		debugCamera_->Update();
+		// ビュープロジェクションにコピー
+		viewProjection_.matView = debugCamera_->GetViewProjection().matView;
+		viewProjection_.matProjection = debugCamera_->GetViewProjection().matProjection;
+		// ビュープロジェクションの転送
+		viewProjection_.TransferMatrix();
+	}
+	else
+	{
+		viewProjection_.UpdateMatrix();
+		viewProjection_.TransferMatrix();
+	}
+#pragma endregion
+#endif
+
+	// デバッグテキスト
+	debugText_->SetPos(0, 0)->Printf("abcd");
+	debugText_->SetPos(0, 16)->Printf("efgh");
+
+	// 自キャラの更新
+	player_->Update();
+
 }
 
 void GameScene::Draw() {
@@ -66,8 +101,9 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに3Dオブジェクトの描画処理を追加できる
 	/// </summary>
-	// 3Dモデル描画
-	model_->Draw(worldTransform_, debugCamera_->GetViewProjection(), textureHandle_);
+
+	// 自キャラの描画
+	player_->Draw(debugCamera_->GetViewProjection());
 
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();

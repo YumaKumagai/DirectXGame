@@ -3,8 +3,8 @@
 #include <Windows.h>
 #include <wrl.h>
 #include <d3d12.h>
-#include "Coord2.h"
-#include "Coord3.h"
+#include "MyTools/Coord2.h"
+#include "MyTools/Coord3.h"
 #include <d3dx12.h>
 
 #include "DirectionalLight.h"
