@@ -27,27 +27,41 @@ void Player::Initialize(Model* model, uint32_t textureHandle)
 void Player::Update()
 {
 
-#pragma region ワールド行列変更処理
-
-	// 行列変更待機
-	worldTransform_.matWorld_ = MathUtility::Matrix4Identity();
-
-	// 行列変更
+	// ワールド行列変更処理
 	{
-		// 回転
-		Rotate();
+		// 行列変更待機
+		worldTransform_.matWorld_ = MathUtility::Matrix4Identity();
 
-		// 平行移動
-		Move();
+		// 行列変更
+		{
+			// 回転
+			Rotate();
 
+			// 平行移動
+			Move();
+
+		}
+
+		// 行列変更終了
+		worldTransform_.TransferMatrix();
 	}
 
-	// 行列変更終了
-	worldTransform_.TransferMatrix();
+	// 弾発射・更新処理
+	{
+		// 弾発射
+		Attack();
 
-#pragma endregion
+		// 弾更新
+		if (bullet_ != nullptr)
+		{
+			bullet_->Update();
+		}
+	}
 
-	DisplayCoord(50.f, 50.f);
+	// デバッグテキスト
+	{
+		DisplayCoord(50.f, 50.f);
+	}
 }
 
 #pragma region Update分割メソッド
@@ -61,25 +75,23 @@ void Player::Rotate()
 		rightRotKey = DIK_E,
 		leftRotKey = DIK_Q;
 
-#pragma region キーボード入力による回転処理
+	// キーボード入力による回転処理
+	{
+		// 右回転
+		worldTransform_.rotation_.y += rotSpeed * input_->PushKey(rightRotKey);
+		// 左回転
+		worldTransform_.rotation_.y -= rotSpeed * input_->PushKey(leftRotKey);
+	}
 
-	// 右回転
-	worldTransform_.rotation_.y += rotSpeed * input_->PushKey(rightRotKey);
-	// 左回転
-	worldTransform_.rotation_.y -= rotSpeed * input_->PushKey(leftRotKey);
+	// 回転行列の乗算
+	{
+		// 行列初期化
+		Matrix4 matRotY =
+			MathUtility::Matrix4RotationY(worldTransform_.rotation_.y);
 
-#pragma endregion
-
-#pragma region 回転行列の乗算
-
-	// 行列初期化
-	Matrix4 matRotY =
-		MathUtility::Matrix4RotationY(worldTransform_.rotation_.y);
-
-	// 行列の乗算
-	worldTransform_.matWorld_ *= matRotY;
-
-#pragma endregion
+		// 行列の乗算
+		worldTransform_.matWorld_ *= matRotY;
+	}
 
 }
 
@@ -94,54 +106,55 @@ void Player::Move()
 		rightKey = DIK_RIGHT,
 		leftKey = DIK_LEFT;
 
-#pragma region キーボード入力による移動処理
+	// キーボード入力による移動処理
+	{
+		int axisX = 0, axisY = 0;
 
-	int axisX = 0, axisY = 0;
+		// 十字キーから軸値を取得
+		axisY += bool(input_->PushKey(upKey));
+		axisY -= bool(input_->PushKey(downKey));
+		axisX += bool(input_->PushKey(rightKey));
+		axisX -= bool(input_->PushKey(leftKey));
 
-	// 十字キーから軸値を取得
-	axisY += bool(input_->PushKey(upKey));
-	axisY -= bool(input_->PushKey(downKey));
-	axisX += bool(input_->PushKey(rightKey));
-	axisX -= bool(input_->PushKey(leftKey));
+		// 移動ベクトル加算
+		worldTransform_.translation_.x +=
+			moveSpeed * float(axisX);
+		worldTransform_.translation_.y +=
+			moveSpeed * float(axisY);
 
-	// 移動ベクトル加算
-	worldTransform_.translation_.x +=
-		moveSpeed * float(axisX);
-	worldTransform_.translation_.y +=
-		moveSpeed * float(axisY);
+	}
 
-#pragma endregion
+	// 移動範囲を制限
+	{
+		// 移動限界座標
+		const Vector2 kMoveLimit(34, 18);
 
-#pragma region 移動範囲を制限
+		// 範囲を超えない処理
+		worldTransform_.translation_.x =
+			max(min(worldTransform_.translation_.x, +kMoveLimit.x), -kMoveLimit.x);
+		worldTransform_.translation_.y =
+			max(min(worldTransform_.translation_.y, +kMoveLimit.y), -kMoveLimit.y);
 
-	// 移動限界座標
-	const Vector2 kMoveLimit(34, 18);
+	}
 
-	// 範囲を超えない処理
-	worldTransform_.translation_.x =
-		max(min(worldTransform_.translation_.x, +kMoveLimit.x), -kMoveLimit.x);
-	worldTransform_.translation_.y =
-		max(min(worldTransform_.translation_.y, +kMoveLimit.y), -kMoveLimit.y);
+	// 平行移動行列の乗算
+	{
+		// 行列初期化
+		Matrix4 matTrans = MathUtility::Matrix4Translation(
+			worldTransform_.translation_.x,
+			worldTransform_.translation_.y,
+			worldTransform_.translation_.z);
 
-#pragma endregion
+		// 行列の乗算
+		worldTransform_.matWorld_ *= matTrans;
 
-#pragma region 平行移動行列の乗算
-
-	// 行列初期化
-	Matrix4 matTrans = MathUtility::Matrix4Translation(
-		worldTransform_.translation_.x,
-		worldTransform_.translation_.y,
-		worldTransform_.translation_.z);
-
-	// 行列の乗算
-	worldTransform_.matWorld_ *= matTrans;
-
-#pragma endregion
+	}
 
 }
 
 void Player::DisplayCoord(float posX, float posY)const
 {
+	// 座標情報を描画
 	debugText_->SetPos(posX, posY)->
 		Printf("Player:(%f,%f,%f)",
 			worldTransform_.translation_.x,
@@ -149,9 +162,29 @@ void Player::DisplayCoord(float posX, float posY)const
 			worldTransform_.translation_.z);
 }
 
+void Player::Attack()
+{
+	if (input_->TriggerKey(DIK_SPACE))
+	{
+		// 弾を生成し、初期化
+		PlayerBullet* newBullet = new PlayerBullet();
+		newBullet->Initialize(model_, worldTransform_.translation_);
+
+		// 弾を登録する
+		bullet_ = newBullet;
+	}
+}
+
 #pragma endregion
 
 void Player::Draw(const ViewProjection& viewProjection_)
 {
+	// 自キャラ描画
 	model_->Draw(worldTransform_, viewProjection_, textureHandle_);
+
+	// 弾描画
+	if (bullet_ != nullptr)
+	{
+		bullet_->Draw(viewProjection_);
+	}
 }
