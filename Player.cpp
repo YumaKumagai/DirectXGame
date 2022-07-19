@@ -96,19 +96,19 @@ void Player::Move()
 
 #pragma region キーボード入力による移動処理
 
-	Int2 axis(0, 0);
+	int axisX = 0, axisY = 0;
 
 	// 十字キーから軸値を取得
-	axis.y += bool(input_->PushKey(upKey));
-	axis.y -= bool(input_->PushKey(downKey));
-	axis.x += bool(input_->PushKey(rightKey));
-	axis.x -= bool(input_->PushKey(leftKey));
+	axisY += bool(input_->PushKey(upKey));
+	axisY -= bool(input_->PushKey(downKey));
+	axisX += bool(input_->PushKey(rightKey));
+	axisX -= bool(input_->PushKey(leftKey));
 
 	// 移動ベクトル加算
 	worldTransform_.translation_.x +=
-		moveSpeed * float(axis.x);
+		moveSpeed * float(axisX);
 	worldTransform_.translation_.y +=
-		moveSpeed * float(axis.y);
+		moveSpeed * float(axisY);
 
 #pragma endregion
 

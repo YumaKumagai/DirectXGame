@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "MyTools/Coord3.h"
+#include "Vector3.h"
 
 /// <summary>
 /// 点光源

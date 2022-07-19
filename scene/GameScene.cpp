@@ -60,6 +60,7 @@ void GameScene::Update() {
 	}
 	else
 	{
+		// ビュープロジェクション行列の再計算と転送
 		viewProjection_.UpdateMatrix();
 		viewProjection_.TransferMatrix();
 	}

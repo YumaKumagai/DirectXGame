@@ -55,7 +55,7 @@ private: // メンバ変数
 
 	// ビュープロジェクション
 	ViewProjection viewProjection_;
-
+	
 	// デバッグカメラ
 	DebugCamera* debugCamera_ = nullptr;
 	// デバッグカメラ有効

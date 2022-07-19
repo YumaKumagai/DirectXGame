@@ -1,7 +1,7 @@
 ﻿#pragma once
 
-#include "MyTools/Coord2.h"
-#include "MyTools/Coord3.h"
+#include "Vector2.h"
+#include "Vector3.h"
 #include "MathUtility.h"
 
 /// <summary>

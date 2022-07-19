@@ -3,6 +3,8 @@
 #include "WorldTransform.h"
 #include "input.h"
 #include "DebugText.h"
+#define _USE_MATH_DEFINES
+#include <math.h>
 
 #define TO_RADIAN(deg) (deg*M_PI/180)
 
