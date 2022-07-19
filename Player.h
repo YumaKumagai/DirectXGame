@@ -5,6 +5,7 @@
 #include "DebugText.h"
 #define _USE_MATH_DEFINES
 #include <math.h>
+#include "PlayerBullet.h"
 
 #define TO_RADIAN(deg) (deg*M_PI/180)
 
@@ -46,6 +47,11 @@ public:
 	/// </summary>
 	void DisplayCoord(float posX, float posY)const;
 
+	/// <summary>
+	/// 攻撃
+	/// </summary>
+	void Attack();
+
 #pragma endregion
 
 	/// <summary>
@@ -63,4 +69,7 @@ private:
 	// シングルトンインスタンス用ポインタ
 	Input* input_ = nullptr;
 	DebugText* debugText_ = nullptr;
+	// 弾
+	PlayerBullet* bullet_ = nullptr;
+
 };
