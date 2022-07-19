@@ -22,7 +22,7 @@ void GameScene::Initialize() {
 
 	// ビュープロジェクションの初期化
 	viewProjection_.Initialize();
-
+	
 	// デバッグカメラの生成
 	debugCamera_ = new DebugCamera(WinApp::kWindowWidth, WinApp::kWindowHeight);
 	// 軸方向表示の表示を有効にする
@@ -104,7 +104,7 @@ void GameScene::Draw() {
 	/// </summary>
 
 	// 自キャラの描画
-	player_->Draw(debugCamera_->GetViewProjection());
+	player_->Draw(viewProjection_);
 
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
