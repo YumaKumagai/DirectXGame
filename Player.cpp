@@ -47,16 +47,7 @@ void Player::Update()
 	}
 
 	// 弾発射・更新処理
-	{
-		// 弾発射
-		Attack();
-
-		// 弾更新
-		if (bullet_ != nullptr)
-		{
-			bullet_->Update();
-		}
-	}
+	Attack();
 
 	// デバッグテキスト
 	{
@@ -164,14 +155,21 @@ void Player::DisplayCoord(float posX, float posY)const
 
 void Player::Attack()
 {
+	// 自弾発射処理
 	if (input_->TriggerKey(DIK_SPACE))
 	{
 		// 弾を生成し、初期化
-		PlayerBullet* newBullet = new PlayerBullet();
+		std::unique_ptr<PlayerBullet> newBullet = std::make_unique<PlayerBullet>();
 		newBullet->Initialize(model_, worldTransform_.translation_);
 
 		// 弾を登録する
-		bullet_ = newBullet;
+		bullets_.push_back(std::move(newBullet));
+	}
+
+	// 自弾更新処理
+	for (std::unique_ptr<PlayerBullet>& bullet : bullets_)
+	{
+		bullet->Update();
 	}
 }
 
@@ -183,8 +181,8 @@ void Player::Draw(const ViewProjection& viewProjection_)
 	model_->Draw(worldTransform_, viewProjection_, textureHandle_);
 
 	// 弾描画
-	if (bullet_ != nullptr)
+	for (std::unique_ptr<PlayerBullet>& bullet : bullets_)
 	{
-		bullet_->Draw(viewProjection_);
+		bullet->Draw(viewProjection_);
 	}
 }

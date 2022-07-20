@@ -6,6 +6,7 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include "PlayerBullet.h"
+#include <memory>
 
 #define TO_RADIAN(deg) (deg*M_PI/180)
 
@@ -48,7 +49,7 @@ public:
 	void DisplayCoord(float posX, float posY)const;
 
 	/// <summary>
-	/// UŒ‚
+	/// ©’e”­ËEXVˆ—
 	/// </summary>
 	void Attack();
 
@@ -70,6 +71,6 @@ private:
 	Input* input_ = nullptr;
 	DebugText* debugText_ = nullptr;
 	// ’e
-	PlayerBullet* bullet_ = nullptr;
+	std::list<std::unique_ptr<PlayerBullet>> bullets_;
 
 };
