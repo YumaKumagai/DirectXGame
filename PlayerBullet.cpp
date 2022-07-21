@@ -1,19 +1,20 @@
 #include "PlayerBullet.h"
 #include <assert.h>
 
-void PlayerBullet::Initialize(Model* model, const Vector3& position)
+void PlayerBullet::Initialize(Model* model, const Vector3& position, const Vector3& velocity)
 {
 	// NULLポインタチェック
 	assert(model != nullptr);
-
-	model_ = model;
 	// テクスチャ読み込み
 	textureHandle_ = TextureManager::Load("./Resources/black.png");
-
 	// ワールドトランスフォームの初期化
 	worldTransform_.Initialize();
 	// 引数で受け取った初期座標をセット
 	worldTransform_.translation_ = position;
+	// 引数で受け取った速度をメンバ変数に代入
+	velocity_ = velocity;
+	// 引数で受け取ったモデルをセット
+	model_ = model;
 
 }
 
@@ -36,12 +37,14 @@ void PlayerBullet::Update()
 
 			// 平行移動
 			{
+				// 座標を移動
+				worldTransform_.translation_ += velocity_;
+
+				// 行列の乗算
 				Matrix4 matTrans = MathUtility::Matrix4Translation(
 					worldTransform_.translation_.x,
 					worldTransform_.translation_.y,
 					worldTransform_.translation_.z);
-
-				// 行列の乗算
 				worldTransform_.matWorld_ *= matTrans;
 
 			}
@@ -51,6 +54,13 @@ void PlayerBullet::Update()
 		// 行列変更終了
 		worldTransform_.TransferMatrix();
 	}
+
+	// 時間経過でデス
+	if (--deathTimer_ <= 0)
+	{
+		isDead_ = true;
+	}
+
 }
 
 void PlayerBullet::Draw(const ViewProjection& viewProjection)

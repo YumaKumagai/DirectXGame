@@ -31,7 +31,7 @@ public:
 	/// 更新
 	/// </summary>
 	void Update();
-#pragma region Update分割メソッド
+#pragma region Update内メソッド
 
 	/// <summary>
 	/// Y軸回転
@@ -42,11 +42,6 @@ public:
 	/// 十字キー移動
 	/// </summary>
 	void Move();
-
-	/// <summary>
-	/// 座標をデバッグテキストで表示
-	/// </summary>
-	void DisplayCoord(float posX, float posY)const;
 
 	/// <summary>
 	/// 自弾発射・更新処理

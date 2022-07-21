@@ -51,16 +51,51 @@ void Player::Update()
 
 	// デバッグテキスト
 	{
-		DisplayCoord(50.f, 50.f);
+#pragma region define定義
+
+		// 左上座標
+		Vector2 pos = { 50,50 };
+		// デバッグ表示関数
+#define DEBUG_TEXT (debugText_->SetPos(pos.x,pos.y)->Printf)
+		// 改行関数
+#define ENDL() (pos.y+=15)
+		// インデント
+#define INDENT "		"
+
+#pragma endregion
+
+		// オブジェクト名
+		DEBUG_TEXT("Player:");
+		ENDL();
+
+		// 座標情報
+		DEBUG_TEXT(INDENT"Coord=(%f,%f,%f)",
+			worldTransform_.translation_.x,
+			worldTransform_.translation_.y,
+			worldTransform_.translation_.z);
+		ENDL();
+
+		// 発射弾数
+		DEBUG_TEXT(INDENT"Bullets=%d", bullets_.size());
+		ENDL();
+
+#pragma region define取消
+
+#undef DEBUG_TEXT
+#undef ENDL()
+#undef INDENT
+
+#pragma endregion
 	}
+
 }
 
-#pragma region Update分割メソッド
+#pragma region Update内メソッド
 
 void Player::Rotate()
 {
 	// 回転角速度(弧度法)
-	const float rotSpeed = TO_RADIAN(6.f);
+	const float rotSpeed = TO_RADIAN(3.f);
 	// 回転キー
 	const BYTE
 		rightRotKey = DIK_E,
@@ -143,24 +178,26 @@ void Player::Move()
 
 }
 
-void Player::DisplayCoord(float posX, float posY)const
-{
-	// 座標情報を描画
-	debugText_->SetPos(posX, posY)->
-		Printf("Player:(%f,%f,%f)",
-			worldTransform_.translation_.x,
-			worldTransform_.translation_.y,
-			worldTransform_.translation_.z);
-}
-
 void Player::Attack()
 {
+	// デスフラグの立った弾を削除
+	bullets_.remove_if([](std::unique_ptr<PlayerBullet>& bullet) {
+		return bullet->IsDead();
+		});
+
 	// 自弾発射処理
 	if (input_->TriggerKey(DIK_SPACE))
 	{
+		// 弾の速度
+		const float kBulletSpeed = 1.0f;
+		Vector3 velocity(0, 0, kBulletSpeed);
+
+		// 速度ベクトルを自機の向きに合わせて回転させる
+		velocity = MathUtility::Vector3TransformNormal(velocity, worldTransform_.matWorld_);
+
 		// 弾を生成し、初期化
 		std::unique_ptr<PlayerBullet> newBullet = std::make_unique<PlayerBullet>();
-		newBullet->Initialize(model_, worldTransform_.translation_);
+		newBullet->Initialize(model_, worldTransform_.translation_, velocity);
 
 		// 弾を登録する
 		bullets_.push_back(std::move(newBullet));
@@ -171,6 +208,7 @@ void Player::Attack()
 	{
 		bullet->Update();
 	}
+
 }
 
 #pragma endregion
