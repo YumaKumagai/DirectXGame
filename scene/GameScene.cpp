@@ -8,9 +8,11 @@ GameScene::GameScene() {}
 GameScene::~GameScene() {
 	delete debugCamera_;
 
-	// 自キャラの開放
+	// 自キャラの解放
 	delete player_;
 
+	// 敵の解放
+	delete enemy_;
 }
 
 void GameScene::Initialize() {
@@ -22,7 +24,7 @@ void GameScene::Initialize() {
 
 	// ビュープロジェクションの初期化
 	viewProjection_.Initialize();
-	
+
 	// デバッグカメラの生成
 	debugCamera_ = new DebugCamera(WinApp::kWindowWidth, WinApp::kWindowHeight);
 	// 軸方向表示の表示を有効にする
@@ -30,10 +32,18 @@ void GameScene::Initialize() {
 	// 軸方向表示が参照するビュープロジェクションを指定する（アドレス渡し）
 	AxisIndicator::GetInstance()->SetTargetViewProjection(&debugCamera_->GetViewProjection());
 
+	// モデルの生成
+	model_ = Model::Create();
+
 	// 自キャラの生成
 	player_ = new Player();
 	// 自キャラの初期化
-	player_->Initialize(Model::Create(), TextureManager::Load("mario.jpg"));
+	player_->Initialize(model_, TextureManager::Load("mario.jpg"));
+
+	// 敵の生成
+	enemy_ = new Enemy();
+	// 敵の初期化
+	enemy_->Initialize(model_);
 
 }
 
@@ -74,6 +84,12 @@ void GameScene::Update() {
 	// 自キャラの更新
 	player_->Update();
 
+	// 敵の更新
+	if (enemy_ != nullptr)
+	{
+		enemy_->Update();
+	}
+
 }
 
 void GameScene::Draw() {
@@ -105,6 +121,12 @@ void GameScene::Draw() {
 
 	// 自キャラの描画
 	player_->Draw(viewProjection_);
+
+	// 敵の描画
+	if (enemy_ != nullptr)
+	{
+		enemy_->Draw(viewProjection_);
+	}
 
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
