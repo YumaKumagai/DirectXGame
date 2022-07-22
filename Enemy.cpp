@@ -16,12 +16,29 @@ void Enemy::Initialize(Model* model)
 
 	// 初期座標設定
 	worldTransform_.translation_ = { 0,2,50 };
+
+	// 接近フェーズに設定
+	phase_ = Phase::Approach;
+
 }
 
 void Enemy::Update()
 {
-	// 移動処理
-	worldTransform_.translation_ += Vector3(0, 0, -0.25f);
+	switch (phase_)
+	{
+	case Phase::Approach:
+	default:
+
+		UpdateApproach();
+
+		break;
+	case Phase::Leave:
+
+		UpdateLeave();
+
+		break;
+	}
+
 
 	// 行列更新
 	{
@@ -60,6 +77,32 @@ void Enemy::Update()
 	}
 
 }
+#pragma region Update分割メソッド
+
+void Enemy::UpdateApproach()
+{
+	// 移動速度
+	const Vector3 approachVelocity(0, 0, -0.25f);
+
+	// 移動
+	worldTransform_.translation_ += approachVelocity;
+	// 規定の位置に到達したら離脱
+	if (worldTransform_.translation_.z < 0.0f)
+	{
+		phase_ = Phase::Leave;
+	}
+}
+
+void Enemy::UpdateLeave()
+{
+	// 移動速度
+	const Vector3 leaveVelocity(-0.1f, 0.1f, -0.1f);
+
+	// 移動
+	worldTransform_.translation_ += leaveVelocity;
+}
+
+#pragma endregion
 
 void Enemy::Draw(const ViewProjection& viewProjection)
 {
