@@ -9,7 +9,7 @@ void Enemy::Initialize(Model* model)
 	model_ = model;
 
 	// テクスチャ読み込み
-	textureHandle_ = TextureManager::Load("./Resources/enemy01.png");
+	textureHandle_ = TextureManager::Load("enemy01.png");
 
 	// ワールドトランスフォームの初期化
 	worldTransform_.Initialize();
@@ -20,25 +20,46 @@ void Enemy::Initialize(Model* model)
 	// 接近フェーズに設定
 	phase_ = Phase::Approach;
 
+	// 接近フェーズ初期化
+	InitializeApproach();
+
 }
 
 void Enemy::Update()
 {
-	switch (phase_)
+	// 弾削除,更新
 	{
-	case Phase::Approach:
-	default:
+		// デスフラグの立った弾を削除
+		bullets_.remove_if([](std::unique_ptr<EnemyBullet>& bullet)
+			{
+				return bullet->IsDead();
+			});
 
-		UpdateApproach();
+		// 弾の更新処理
+		for (std::unique_ptr<EnemyBullet>& bullet : bullets_)
+		{
+			bullet->Update();
+		}
 
-		break;
-	case Phase::Leave:
-
-		UpdateLeave();
-
-		break;
 	}
 
+	// フェーズ別更新処理
+	{
+		switch (phase_)
+		{
+		case Phase::Approach:
+		default:
+
+			UpdateApproach();
+
+			break;
+		case Phase::Leave:
+
+			UpdateLeave();
+
+			break;
+		}
+	}
 
 	// 行列更新
 	{
@@ -79,6 +100,13 @@ void Enemy::Update()
 }
 #pragma region Update分割メソッド
 
+void Enemy::InitializeApproach()
+{
+	// 発射タイマーを初期化
+	fireTimer_ = kFireInterval;
+
+}
+
 void Enemy::UpdateApproach()
 {
 	// 移動速度
@@ -91,6 +119,10 @@ void Enemy::UpdateApproach()
 	{
 		phase_ = Phase::Leave;
 	}
+
+	// 弾発射
+	Fire();
+
 }
 
 void Enemy::UpdateLeave()
@@ -102,10 +134,49 @@ void Enemy::UpdateLeave()
 	worldTransform_.translation_ += leaveVelocity;
 }
 
+void Enemy::Fire()
+{
+	// 発射タイマーカウントダウン
+	if (fireTimer_ > 0)
+	{
+		fireTimer_--;
+	}
+	// 指定時間に達した
+	else
+	{
+		// 弾発射
+		{
+			// 弾の速度
+			const float kBulletSpeed = -1.0f;
+			Vector3 velocity(0, 0, kBulletSpeed);
+
+			// 弾を生成し、初期化
+			std::unique_ptr<EnemyBullet> newBullet =
+				std::make_unique<EnemyBullet>();
+			newBullet->Initialize(model_, worldTransform_.translation_,
+				velocity);
+
+			// 弾を登録する
+			bullets_.push_back(std::move(newBullet));
+		}
+
+		// 発射タイマーを初期化
+		fireTimer_ = kFireInterval;
+
+	}
+
+}
+
 #pragma endregion
 
 void Enemy::Draw(const ViewProjection& viewProjection)
 {
 	// モデルの描画
 	model_->Draw(worldTransform_, viewProjection, textureHandle_);
+
+	// 弾の描画処理
+	for (std::unique_ptr<EnemyBullet>& bullet : bullets_)
+	{
+		bullet->Draw(viewProjection);
+	}
 }
