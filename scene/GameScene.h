@@ -44,6 +44,21 @@ public: // メンバ関数
 	/// </summary>
 	void Draw();
 
+private: // メンバ関数
+
+	/// <summary>
+	/// 衝突判定と応答
+	/// </summary>
+	void CheckAllCollisions();
+#pragma region 衝突判定メソッド
+
+	// 球Aと球Bの当たり判定
+	bool CollisionSphereAAndSphereB(
+		const Vector3& posA, float radiusA,
+		const Vector3& posB, float radiusB)const;
+
+#pragma endregion
+
 private: // メンバ変数
 	DirectXCommon* dxCommon_ = nullptr;
 	Input* input_ = nullptr;

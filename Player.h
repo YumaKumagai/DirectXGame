@@ -55,12 +55,28 @@ public:
 	/// </summary>
 	void Draw(const ViewProjection& viewProjection_);
 
+	// 衝突を検出したら呼び出されるコールバック関数
+	void OnCollision();
+
 	// ワールド座標を取得
-	Vector3 GetWorldPosition()const;
+	Vector3 GetWorldPosition()const
+	{
+		return Vector3(
+			worldTransform_.matWorld_.m[3][0],
+			worldTransform_.matWorld_.m[3][1],
+			worldTransform_.matWorld_.m[3][2]
+		);
+	}
+	// 衝突半径を取得
+	float GetRadius()const { return radius_; }
+	// 弾リストを取得
+	const std::list<std::unique_ptr<PlayerBullet>>& GetBullets() { return bullets_; }
 
 private:
 	// ワールド変換データ
 	WorldTransform worldTransform_;
+	// 衝突半径
+	float radius_ = 1.f;
 	// モデル
 	Model* model_ = nullptr;
 	// テクスチャハンドル

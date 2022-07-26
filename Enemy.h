@@ -40,15 +40,32 @@ public:
 	/// </summary>
 	void Draw(const ViewProjection& viewProjection);
 
-	/// <summary>
-	/// player登録
-	/// </summary>
-	/// <param name="player"></param>
+	// Player登録
 	static void SetPlayer(const Player* player);
+
+	// 衝突を検出したら呼び出されるコールバック関数
+	void OnCollision();
+
+	// ワールド座標を取得
+	Vector3 GetWorldPosition()const
+	{
+		return Vector3(
+			worldTransform_.matWorld_.m[3][0],
+			worldTransform_.matWorld_.m[3][1],
+			worldTransform_.matWorld_.m[3][2]
+		);
+	}
+	// 衝突半径を取得
+	float GetRadius()const { return radius_; }
+	// 弾リストを取得
+	const std::list<std::unique_ptr<EnemyBullet>>& GetBullets() { return bullets_; }
 
 private:
 	// ワールドトランスフォーム
 	WorldTransform worldTransform_;
+
+	// 衝突判定
+	float radius_ = 1.f;
 
 	// モデルのポインタ
 	Model* model_ = nullptr;
@@ -74,7 +91,7 @@ private:
 	int32_t fireTimer_ = 0;
 
 	// player参照用ポインタ
-	static const Player* kPlayer_;
+	static const Player* kPlayer;
 
 };
 

@@ -1,7 +1,7 @@
 #include "Enemy.h"
 #include <cassert>
 
-const Player* Enemy::kPlayer_;
+const Player* Enemy::kPlayer;
 
 void Enemy::Initialize(Model* model)
 {
@@ -17,7 +17,7 @@ void Enemy::Initialize(Model* model)
 	worldTransform_.Initialize();
 
 	// 初期座標設定
-	worldTransform_.translation_ = { 0,2,50 };
+	worldTransform_.translation_ = { 10,2,50 };
 
 	// 接近フェーズに設定
 	phase_ = Phase::Approach;
@@ -138,7 +138,7 @@ void Enemy::UpdateLeave()
 
 void Enemy::Fire()
 {
-	assert(kPlayer_ != nullptr);
+	assert(kPlayer != nullptr);
 
 	// 弾の速度
 	const float kBulletSpeed = 1.0f;
@@ -164,7 +164,7 @@ void Enemy::Fire()
 					worldTransform_.matWorld_.m[3][2]
 				);
 				// 敵→自の差分ベクトル
-				Vector3 DiffVec = kPlayer_->GetWorldPosition() - worldPos;
+				Vector3 DiffVec = kPlayer->GetWorldPosition() - worldPos;
 				// 差分ベクトルの正規化
 				MathUtility::Vector3Normalize(DiffVec);
 
@@ -206,5 +206,9 @@ void Enemy::Draw(const ViewProjection& viewProjection)
 void Enemy::SetPlayer(const Player* player)
 {
 	assert(player != nullptr);
-	kPlayer_ = player;
+	kPlayer = player;
+}
+
+void Enemy::OnCollision()
+{
 }

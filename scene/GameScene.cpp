@@ -79,10 +79,6 @@ void GameScene::Update() {
 #pragma endregion
 #endif
 
-	// デバッグテキスト
-	debugText_->SetPos(0, 0)->Printf("abcd");
-	debugText_->SetPos(0, 16)->Printf("efgh");
-
 	// 自キャラの更新
 	player_->Update();
 
@@ -92,6 +88,8 @@ void GameScene::Update() {
 		enemy_->Update();
 	}
 
+	// 衝突判定と応答
+	CheckAllCollisions();
 }
 
 void GameScene::Draw() {
@@ -150,3 +148,107 @@ void GameScene::Draw() {
 
 #pragma endregion
 }
+
+void GameScene::CheckAllCollisions()
+{
+	// 判定対象AとBの座標
+	Vector3 posA, posB;
+	// 判定対象AとBの半径
+	float radiusA, radiusB;
+
+	// 自弾リストの取得
+	const std::list<std::unique_ptr<PlayerBullet>>& playerBullets = player_->GetBullets();
+	// 敵弾リストの取得
+	const std::list<std::unique_ptr<EnemyBullet>>& enemyBullets = enemy_->GetBullets();
+
+	// 自キャラと敵弾の当たり判定
+	{
+		// 自キャラの座標と半径
+		posA = player_->GetWorldPosition();
+		radiusA = player_->GetRadius();
+
+		// 自キャラと敵弾全ての当たり判定
+		for (const std::unique_ptr<EnemyBullet>& bullet : enemyBullets)
+		{
+			// 敵弾の座標と半径
+			posB = bullet->GetWorldPosition();
+			radiusB = bullet->GetRadius();
+
+			// 球同士が当たっていれば
+			if (CollisionSphereAAndSphereB(posA, radiusA, posB, radiusB))
+			{
+				// 衝突時コールバックを呼び出す
+				player_->OnCollision();
+				bullet->OnCollision();
+
+			}
+
+		}
+
+	}
+
+	// 自弾と敵キャラの当たり判定
+	{
+		// 敵キャラの座標と半径
+		posA = enemy_->GetWorldPosition();
+		radiusA = enemy_->GetRadius();
+
+		// 自弾と敵キャラの当たり判定
+		for (const std::unique_ptr<PlayerBullet>& bullet : playerBullets)
+		{
+			// 自弾の座標と半径
+			posB = bullet->GetWorldPosition();
+			radiusB = bullet->GetRadius();
+
+			// 球同士が当たっていれば
+			if (CollisionSphereAAndSphereB(posA, radiusA, posB, radiusB))
+			{
+				// 衝突時コールバックを呼び出す
+				enemy_->OnCollision();
+				bullet->OnCollision();
+
+			}
+		}
+
+	}
+
+	// 自弾と敵弾の当たり判定
+	{
+		for (const std::unique_ptr<PlayerBullet>& playerBullet : playerBullets)
+		{
+			// 自弾の座標と半径
+			posA = playerBullet->GetWorldPosition();
+			radiusA = playerBullet->GetRadius();
+
+			for (const std::unique_ptr<EnemyBullet>& enemyBullet : enemyBullets)
+			{
+				// 敵弾の座標と半径
+				posB = enemyBullet->GetWorldPosition();
+				radiusB = enemyBullet->GetRadius();
+
+				// 球同士が当たっていれば
+				if (CollisionSphereAAndSphereB(posA, radiusA, posB, radiusB))
+				{
+					// 衝突時コールバックを呼び出す
+					playerBullet->OnCollision();
+					enemyBullet->OnCollision();
+
+				}
+			}
+
+		}
+
+	}
+
+}
+#pragma region 衝突判定メソッド
+
+// 球Aと球Bの当たり判定
+bool GameScene::CollisionSphereAAndSphereB(const Vector3& posA, float radiusA, const Vector3& posB, float radiusB)const
+{
+	return
+		powf(posA.x - posB.x, 2) + powf(posA.y - posB.y, 2) + powf(posA.z - posB.z, 2)
+		<= powf(radiusA + radiusB, 2);
+}
+
+#pragma endregion
