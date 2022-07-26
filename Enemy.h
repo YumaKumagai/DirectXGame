@@ -2,6 +2,7 @@
 #include "Model.h"
 #include "EnemyBullet.h"
 #include <memory>
+#include "Player.h"
 
 /// <summary>
 /// 敵
@@ -23,9 +24,6 @@ public:
 	// 接近フェーズ初期化処理
 	void InitializeApproach();
 
-	// 発射間隔
-	static const int kFireInterval = 60;
-
 	// 接近フェーズ更新処理
 	void UpdateApproach();
 
@@ -41,6 +39,12 @@ public:
 	/// 描画
 	/// </summary>
 	void Draw(const ViewProjection& viewProjection);
+
+	/// <summary>
+	/// player登録
+	/// </summary>
+	/// <param name="player"></param>
+	static void SetPlayer(const Player* player);
 
 private:
 	// ワールドトランスフォーム
@@ -63,8 +67,14 @@ private:
 	// 弾
 	std::list<std::unique_ptr<EnemyBullet>> bullets_;
 
+	// 発射間隔
+	static const int kFireInterval = 60;
+
 	// 発射タイマー
 	int32_t fireTimer_ = 0;
+
+	// player参照用ポインタ
+	static const Player* kPlayer_;
 
 };
 

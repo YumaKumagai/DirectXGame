@@ -1,6 +1,8 @@
 #include "Enemy.h"
 #include <cassert>
 
+const Player* Enemy::kPlayer_;
+
 void Enemy::Initialize(Model* model)
 {
 	// NULLポインタチェック
@@ -110,7 +112,7 @@ void Enemy::InitializeApproach()
 void Enemy::UpdateApproach()
 {
 	// 移動速度
-	const Vector3 approachVelocity(0, 0, -0.25f);
+	const Vector3 approachVelocity(0, 0, -0.125f);
 
 	// 移動
 	worldTransform_.translation_ += approachVelocity;
@@ -136,6 +138,11 @@ void Enemy::UpdateLeave()
 
 void Enemy::Fire()
 {
+	assert(kPlayer_ != nullptr);
+
+	// 弾の速度
+	const float kBulletSpeed = 1.0f;
+
 	// 発射タイマーカウントダウン
 	if (fireTimer_ > 0)
 	{
@@ -146,9 +153,24 @@ void Enemy::Fire()
 	{
 		// 弾発射
 		{
-			// 弾の速度
-			const float kBulletSpeed = -1.0f;
-			Vector3 velocity(0, 0, kBulletSpeed);
+			// 弾の速度ベクトル
+			Vector3 velocity;
+			// 弾の速度ベクトルを求める
+			{
+				// ワールド座標取得
+				Vector3 worldPos(
+					worldTransform_.matWorld_.m[3][0],
+					worldTransform_.matWorld_.m[3][1],
+					worldTransform_.matWorld_.m[3][2]
+				);
+				// 敵→自の差分ベクトル
+				Vector3 DiffVec = kPlayer_->GetWorldPosition() - worldPos;
+				// 差分ベクトルの正規化
+				MathUtility::Vector3Normalize(DiffVec);
+
+				// 弾の速度ベクトル
+				velocity = kBulletSpeed * DiffVec;
+			}
 
 			// 弾を生成し、初期化
 			std::unique_ptr<EnemyBullet> newBullet =
@@ -179,4 +201,10 @@ void Enemy::Draw(const ViewProjection& viewProjection)
 	{
 		bullet->Draw(viewProjection);
 	}
+}
+
+void Enemy::SetPlayer(const Player* player)
+{
+	assert(player != nullptr);
+	kPlayer_ = player;
 }

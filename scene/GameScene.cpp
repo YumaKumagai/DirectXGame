@@ -40,6 +40,8 @@ void GameScene::Initialize() {
 	// 自キャラの初期化
 	player_->Initialize(model_, TextureManager::Load("mario.jpg"));
 
+	// 自キャラ登録
+	Enemy::SetPlayer(player_);
 	// 敵の生成
 	enemy_ = new Enemy();
 	// 敵の初期化

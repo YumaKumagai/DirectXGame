@@ -55,6 +55,9 @@ public:
 	/// </summary>
 	void Draw(const ViewProjection& viewProjection_);
 
+	// ワールド座標を取得
+	Vector3 GetWorldPosition()const;
+
 private:
 	// ワールド変換データ
 	WorldTransform worldTransform_;

@@ -67,6 +67,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		if (win->ProcessMessage()) {
 			break;
 		}
+		// ESCキーで終了
+		if (input->TriggerKey(DIK_ESCAPE)) {
+			break;
+		}
 
 		// 入力関連の毎フレーム処理
 		input->Update();
