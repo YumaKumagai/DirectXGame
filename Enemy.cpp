@@ -29,19 +29,13 @@ void Enemy::Initialize(Model* model)
 
 void Enemy::Update()
 {
-	// 弾削除,更新
+	// 弾削除
 	{
 		// デスフラグの立った弾を削除
 		bullets_.remove_if([](std::unique_ptr<EnemyBullet>& bullet)
 			{
 				return bullet->IsDead();
 			});
-
-		// 弾の更新処理
-		for (std::unique_ptr<EnemyBullet>& bullet : bullets_)
-		{
-			bullet->Update();
-		}
 
 	}
 
@@ -52,6 +46,7 @@ void Enemy::Update()
 		case Phase::Approach:
 		default:
 
+			// 座標の移動,弾の発射
 			UpdateApproach();
 
 			break;
@@ -61,6 +56,12 @@ void Enemy::Update()
 
 			break;
 		}
+	}
+
+	// 弾の更新処理
+	for (std::unique_ptr<EnemyBullet>& bullet : bullets_)
+	{
+		bullet->Update();
 	}
 
 	// 行列更新

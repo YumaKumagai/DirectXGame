@@ -30,7 +30,7 @@ void EnemyBullet::Update()
 		isDead_ = true;
 	}
 
-	// 行列更新
+	// 行列更新	// 発射は更新の前に行う,削除→発射→更新の順となる
 	{
 		worldTransform_.matWorld_ = MathUtility::Matrix4Identity();
 
